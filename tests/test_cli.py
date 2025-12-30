@@ -107,3 +107,39 @@ def test_cli_mutually_exclusive_encoding_model():
     """Test that -e and -m are mutually exclusive."""
     result = run_cli("-e", "o200k_base", "-m", "gpt-4o", "hello")
     assert result.returncode != 0
+
+
+def test_cli_empty_text_argument():
+    """Test that empty text argument returns 0 tokens."""
+    result = run_cli("")
+    assert result.returncode == 0
+    assert result.stdout.strip() == "0"
+
+
+def test_cli_empty_file():
+    """Test that empty file returns 0 tokens."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+        f.write("")
+        f.flush()
+        temp_path = f.name
+    
+    try:
+        result = run_cli("-f", temp_path)
+        assert result.returncode == 0
+        assert result.stdout.strip() == "0"
+    finally:
+        os.unlink(temp_path)
+
+
+def test_cli_empty_stdin():
+    """Test that empty stdin returns 0 tokens."""
+    result = run_cli(input="")
+    assert result.returncode == 0
+    assert result.stdout.strip() == "0"
+
+
+def test_cli_file_not_found():
+    """Test error handling for non-existent file."""
+    result = run_cli("-f", "/nonexistent/path/to/file.txt")
+    assert result.returncode == 1
+    assert "Error reading file" in result.stderr

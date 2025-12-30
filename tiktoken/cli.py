@@ -18,19 +18,24 @@ def read_input(
     text: str | None = None,
     file: str | None = None,
     stdin: TextIO | None = None,
-) -> str:
-    """Read input from text argument, file, or stdin."""
+) -> tuple[str | None, bool]:
+    """Read input from text argument, file, or stdin.
+    
+    Returns a tuple of (content, input_provided) where content is the text
+    content (may be empty string if file/stdin is empty) and input_provided
+    is True if an input source was specified.
+    """
     if text is not None:
-        return text
+        return text, True
     
     if file is not None:
         with open(file, "r", encoding="utf-8") as f:
-            return f.read()
+            return f.read(), True
     
     if stdin is not None and not stdin.isatty():
-        return stdin.read()
+        return stdin.read(), True
     
-    return ""
+    return None, False
 
 
 def main() -> int:
@@ -94,13 +99,17 @@ Examples:
         return 0
     
     # Read input
-    input_text = read_input(
-        text=args.text,
-        file=args.file,
-        stdin=sys.stdin,
-    )
+    try:
+        input_text, input_provided = read_input(
+            text=args.text,
+            file=args.file,
+            stdin=sys.stdin,
+        )
+    except OSError as e:
+        print(f"Error reading file: {e}", file=sys.stderr)
+        return 1
     
-    if not input_text:
+    if not input_provided:
         parser.print_help()
         return 1
     
@@ -114,8 +123,8 @@ Examples:
         print(f"Error: {e}", file=sys.stderr)
         return 1
     
-    # Count tokens
-    token_count = count_tokens(input_text, enc)
+    # Count tokens (input_text is a string when input_provided is True)
+    token_count = count_tokens(input_text, enc)  # type: ignore[arg-type]
     print(token_count)
     
     return 0
