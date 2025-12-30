@@ -22,8 +22,7 @@ def read_input(
     """Read input from text argument, file, or stdin.
     
     Returns a tuple of (content, input_provided) where content is the text
-    content (may be empty string if file/stdin is empty) and input_provided
-    is True if an input source was specified.
+    and input_provided is True if an input source was specified.
     """
     if text is not None:
         return text, True
@@ -109,7 +108,7 @@ Examples:
         print(f"Error reading file: {e}", file=sys.stderr)
         return 1
     
-    if not input_provided:
+    if not input_provided or input_text is None:
         parser.print_help()
         return 1
     
@@ -123,8 +122,8 @@ Examples:
         print(f"Error: {e}", file=sys.stderr)
         return 1
     
-    # Count tokens (input_text is a string when input_provided is True)
-    token_count = count_tokens(input_text, enc)  # type: ignore[arg-type]
+    # Count tokens
+    token_count = count_tokens(input_text, enc)
     print(token_count)
     
     return 0
