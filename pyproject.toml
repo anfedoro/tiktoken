@@ -9,6 +9,9 @@ dependencies = ["regex>=2022.1.18", "requests>=2.26.0"]
 optional-dependencies = { blobfile = ["blobfile>=2"] }
 requires-python = ">=3.9"
 
+[project.scripts]
+tiktoken = "tiktoken.cli:main"
+
 [project.urls]
 homepage = "https://github.com/openai/tiktoken"
 repository = "https://github.com/openai/tiktoken"
